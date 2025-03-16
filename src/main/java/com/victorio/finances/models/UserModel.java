@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.victorio.finances.enums.RoleEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -32,6 +34,8 @@ public class UserModel implements UserDetails{
 	@Column(unique = true)
 	private String username;
 	private String password;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TransactionModel> transactions;
 	
 	public UserModel() {
 	}
@@ -41,29 +45,37 @@ public class UserModel implements UserDetails{
 		this.username = username;
 		this.password = password;
 	}
+
+	@Override
+	public String getUsername() {
+		return username;
+	}
 	
 	public void setUsername(String username) {
 		this.username = username;
-	}
-	
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		if(this.role == RoleEnum.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-		else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 
 	@Override
 	public String getPassword() {
 		return password;
 	}
+	
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	public void addtransaction(TransactionModel transaction) {
+		transactions.add(transaction);
+	}
+	
+	public void removeTransaction(TransactionModel transaction){
+		transactions.remove(transaction);
+	}
 
 	@Override
-	public String getUsername() {
-		return username;
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		if(this.role == RoleEnum.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+		else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 	
 }
