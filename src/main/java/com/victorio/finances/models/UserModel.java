@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.victorio.finances.dto.UserDto;
 import com.victorio.finances.enums.RoleEnum;
 
 import jakarta.persistence.CascadeType;
@@ -19,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
@@ -32,7 +34,9 @@ public class UserModel implements UserDetails{
 	@Enumerated(EnumType.STRING)
 	private RoleEnum role;
 	@Column(unique = true)
+	@NotBlank(message = "The username can't be empty!")
 	private String username;
+	@NotBlank(message = "The password can't be empty!")
 	private String password;
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TransactionModel> transactions;
@@ -44,6 +48,12 @@ public class UserModel implements UserDetails{
 		this.role = RoleEnum.USER;
 		this.username = username;
 		this.password = password;
+	}
+	
+	public UserModel(UserDto user) {
+		this.role = RoleEnum.USER;
+		this.username = user.username();
+		this.password = user.password();
 	}
 
 	@Override

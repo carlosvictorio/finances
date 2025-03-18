@@ -2,6 +2,7 @@ package com.victorio.finances.models;
 
 import java.time.LocalDateTime;
 
+import com.victorio.finances.dto.TransactionDto;
 import com.victorio.finances.enums.TypeEnum;
 
 import jakarta.persistence.Entity;
@@ -38,11 +39,11 @@ public class TransactionModel {
 		
 	}
 
-	public TransactionModel( Double value, TypeEnum type,  String description, LocalDateTime date) {
-		this.value = value;
-		this.type = type;
-		this.description = description;
-		this.date = date;
+	public TransactionModel(TransactionDto transaction) {
+		this.value = transaction.value();
+		this.type = transaction.type();
+		this.description = transaction.description();
+		this.date = transaction.date();
 	}
 	
 	public Long getId() {

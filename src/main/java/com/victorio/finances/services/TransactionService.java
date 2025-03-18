@@ -25,7 +25,7 @@ public class TransactionService {
 	}
 	
 	void saveTransaction(TransactionDto transactionData) {
-		TransactionModel transaction = new TransactionModel(transactionData.value(), transactionData.type(), transactionData.description(), transactionData.date());
+		TransactionModel transaction = new TransactionModel(transactionData);
 		transactionRepository.save(transaction);
 	}
 	
@@ -50,4 +50,5 @@ public class TransactionService {
 		Double incomes = getTotalIncome(userId);
 		return incomes - expenses;
 	}
+	
 }
