@@ -55,6 +55,14 @@ public class UserModel implements UserDetails{
 		this.username = user.username();
 		this.password = user.password();
 	}
+	
+	public Long getId() {
+		return id;
+	}
+	
+	public RoleEnum getRole() {
+		return role;
+	}
 
 	@Override
 	public String getUsername() {
@@ -73,6 +81,10 @@ public class UserModel implements UserDetails{
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public List<TransactionModel> getTransactions() {
+		return transactions;
+	}
 	
 	public void addtransaction(TransactionModel transaction) {
 		transactions.add(transaction);
@@ -80,6 +92,10 @@ public class UserModel implements UserDetails{
 	
 	public void removeTransaction(TransactionModel transaction){
 		transactions.remove(transaction);
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	@Override
