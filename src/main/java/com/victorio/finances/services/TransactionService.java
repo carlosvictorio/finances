@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.victorio.finances.dto.TransactionDto;
 import com.victorio.finances.enums.TypeEnum;
+import com.victorio.finances.exceptions.EntityNotFoundException;
 import com.victorio.finances.models.TransactionModel;
 import com.victorio.finances.models.UserModel;
 import com.victorio.finances.repositories.TransactionRepository;
@@ -21,20 +22,18 @@ public class TransactionService {
 	@Autowired
 	private UserRepository userRepository;
 	
-	public List<TransactionModel> transactionByUser(Long userId) {
-		UserModel user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+	public List<TransactionModel> transactionByUser(String username) {
+		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User"));
 		List<TransactionModel> transactionList = transactionRepository.findByUser(user);
 		return transactionList;
 	}
 		
 	public void saveTransaction(String username, TransactionDto transactionDto) {
-		double epsilon = 0.01;
-		
 		if(transactionDto.type() == TypeEnum.EXPENSE && transactionDto.value() > getTotalBalance(username)) {
 			throw new RuntimeException("Amount to spend cannot be greater than the total amount.");
 		}
 		
-		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not exists!"));
+		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User"));
 		TransactionModel transaction = new TransactionModel(
 				transactionDto.value(),
 				transactionDto.type(), 
@@ -47,18 +46,18 @@ public class TransactionService {
 	}
 	
 	public void deleteTransaction(Long transactionId) {
-		transactionRepository.findById(transactionId).orElseThrow(() -> new RuntimeException("Transactions doesn't exists!"));
+		transactionRepository.findById(transactionId).orElseThrow(() -> new EntityNotFoundException("Transaction"));
 		transactionRepository.deleteById(transactionId);
 	}
 	
 	public Double getTotalIncome(String username) {
-		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException());
+		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User"));
 		List <TransactionModel> transactions = transactionRepository.findByTypeAndUser(TypeEnum.INCOME, user);
 		return transactions.stream().mapToDouble(t -> t.getValue()).sum();
 	}
 	
 	public Double getTotalExpense(String username) {
-		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException());
+		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User"));
 		List <TransactionModel> transactions = transactionRepository.findByTypeAndUser(TypeEnum.EXPENSE, user);
 		return transactions.stream().mapToDouble(t -> t.getValue()).sum();
 	}
