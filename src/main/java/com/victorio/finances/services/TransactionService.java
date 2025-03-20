@@ -1,8 +1,9 @@
 package com.victorio.finances.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.victorio.finances.dto.TransactionDto;
@@ -15,39 +16,56 @@ import com.victorio.finances.repositories.UserRepository;
 @Service
 public class TransactionService {
 	
+	@Autowired
 	private TransactionRepository transactionRepository;
+	@Autowired
 	private UserRepository userRepository;
 	
-	List<TransactionModel> transactionByUser(Long userId) {
-		userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
-		List<TransactionModel> transactionList = transactionRepository.findByUser(userId);
+	public List<TransactionModel> transactionByUser(Long userId) {
+		UserModel user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		List<TransactionModel> transactionList = transactionRepository.findByUser(user);
 		return transactionList;
 	}
-	
-	void saveTransaction(TransactionDto transactionData) {
-		TransactionModel transaction = new TransactionModel(transactionData);
-		transactionRepository.save(transaction);
+		
+	public void saveTransaction(String username, TransactionDto transactionDto) {
+		double epsilon = 0.01;
+		
+		if(transactionDto.type() == TypeEnum.EXPENSE && transactionDto.value() > getTotalBalance(username)) {
+			throw new RuntimeException("Amount to spend cannot be greater than the total amount.");
+		}
+		
+		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not exists!"));
+		TransactionModel transaction = new TransactionModel(
+				transactionDto.value(),
+				transactionDto.type(), 
+				transactionDto.description(), 
+				LocalDateTime.now(),
+				user);
+
+		user.addtransaction(transaction);
+		userRepository.save(user);
 	}
 	
-	void deleteTransaction(Long userId) {
-		transactionRepository.deleteById(userId);
+	public void deleteTransaction(Long transactionId) {
+		transactionRepository.findById(transactionId).orElseThrow(() -> new RuntimeException("Transactions doesn't exists!"));
+		transactionRepository.deleteById(transactionId);
 	}
 	
-	Double getTotalIncome(Long userId) {
-		UserModel user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException());
+	public Double getTotalIncome(String username) {
+		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException());
 		List <TransactionModel> transactions = transactionRepository.findByTypeAndUser(TypeEnum.INCOME, user);
 		return transactions.stream().mapToDouble(t -> t.getValue()).sum();
 	}
 	
-	Double getTotalExpense(Long userId) {
-		UserModel user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException());
+	public Double getTotalExpense(String username) {
+		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException());
 		List <TransactionModel> transactions = transactionRepository.findByTypeAndUser(TypeEnum.EXPENSE, user);
 		return transactions.stream().mapToDouble(t -> t.getValue()).sum();
 	}
 	
-	Double getTotalBalance(Long userId) {
-		Double expenses = getTotalExpense(userId);
-		Double incomes = getTotalIncome(userId);
+	public Double getTotalBalance(String username) {
+		Double expenses = getTotalExpense(username);
+		Double incomes = getTotalIncome(username);
 		return incomes - expenses;
 	}
 	
