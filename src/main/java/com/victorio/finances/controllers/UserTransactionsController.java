@@ -14,9 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.victorio.finances.dto.TransactionDto;
 import com.victorio.finances.models.TransactionModel;
-import com.victorio.finances.models.UserModel;
-import com.victorio.finances.repositories.TransactionRepository;
-import com.victorio.finances.repositories.UserRepository;
 import com.victorio.finances.services.TransactionService;
 
 @RequestMapping("/user/{username}/transactions")
@@ -24,16 +21,11 @@ import com.victorio.finances.services.TransactionService;
 public class UserTransactionsController {
 
 	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private TransactionRepository transactionRepository;
-	@Autowired
 	private TransactionService transactionService;
 	
 	@GetMapping
 	public ResponseEntity<List<TransactionModel>> getAllTransactions(@PathVariable String username) {
-		UserModel user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException());
-		List<TransactionModel> transactions = transactionRepository.findByUser(user);
+		List<TransactionModel> transactions = transactionService.transactionByUser(username);
 		return ResponseEntity.status(200).body(transactions);
 	}
 	
