@@ -2,10 +2,11 @@ package com.victorio.finances.models;
 
 import java.time.LocalDateTime;
 
-import com.victorio.finances.dto.TransactionDto;
 import com.victorio.finances.enums.TypeEnum;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,7 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "transactions")
@@ -22,13 +23,14 @@ public class TransactionModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@NotBlank(message = "insert a valid value!")
+	@NotNull
 	@DecimalMin(value = "0.0", message = "The value can't be lower than 0!")
 	private Double value;
-	@NotBlank(message = "The type can't be empty!")
+	@NotNull(message = "The type can't be empty!")
+	@Enumerated(EnumType.STRING)
 	private TypeEnum type;
 	private String description;
-	@NotBlank(message = "insert a valid date!")
+	@NotNull
 	private LocalDateTime date;
 	
 	@ManyToOne
@@ -39,11 +41,12 @@ public class TransactionModel {
 		
 	}
 
-	public TransactionModel(TransactionDto transaction) {
-		this.value = transaction.value();
-		this.type = transaction.type();
-		this.description = transaction.description();
-		this.date = transaction.date();
+	public TransactionModel(Double value, TypeEnum type, String description, LocalDateTime date, UserModel user) {
+		this.value = value;
+		this.type = type;
+		this.description = description;
+		this.date = date;
+		this.user = user;
 	}
 	
 	public Long getId() {
