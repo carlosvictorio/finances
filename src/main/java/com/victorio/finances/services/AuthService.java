@@ -38,7 +38,7 @@ public class AuthService {
 	}		
 	
 	public void register(UserDto user) {
-		if(repository.findByUsername(user.username()) == null) {
+		if(repository.findByUsername(user.username()) != null) {
 			throw new UserAlreadyExistsException();
 		}
 		String encryptedPassword = securityConfiguration.passwordEncoder().encode(user.password());
