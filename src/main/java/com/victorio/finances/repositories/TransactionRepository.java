@@ -9,6 +9,6 @@ import com.victorio.finances.models.TransactionModel;
 import com.victorio.finances.models.UserModel;
 
 public interface TransactionRepository extends JpaRepository<TransactionModel, Long>{
-	List<TransactionModel> findByUser(Long id);
+	List<TransactionModel> findByUser(UserModel user);
 	List<TransactionModel> findByTypeAndUser(TypeEnum type, UserModel user);
 }
