@@ -26,6 +26,16 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(500).body("Unexpected error: " + e.getLocalizedMessage());
 	}
 	
+	@ExceptionHandler(UserAlreadyExistsException.class)
+	public ResponseEntity<String> HandleUserAlreadyExistsException(UserAlreadyExistsException e) {
+		return ResponseEntity.status(401).body(e.getMessage());
+	}
+	
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<String> HandleEntityNotFoundException(EntityNotFoundException e) {
+		return ResponseEntity.status(404).body(e.getMessage());
+	}
+	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 	            HttpHeaders headers, HttpStatus status, WebRequest request) {
